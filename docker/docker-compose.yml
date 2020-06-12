@@ -1,0 +1,11 @@
+version: '3'
+
+services:
+  mod-php:
+    build: ./mod-php
+    volumes:
+    - ..:/project
+    environment:
+      LESSCHARSET: utf-8
+      PHP_IDE_CONFIG: serverName=keso01
+      XDEBUG_CONFIG: remote_autostart=1
