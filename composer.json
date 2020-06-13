@@ -1,17 +1,26 @@
 {
-  "require-dev": {
-    "phpunit/phpunit": "^8.0"
-  },
-  "provide": {
-    "ext-mecab": "^0.6"
-  },
-  "require": {
-    "ext-mbstring": "*"
-  },
-  "autoload": {
-    "psr-4": {
-      "Keso01\\": "src/Keso01/",
-      "Keso01\\Test\\": "tests/unit/lib/Test/"
+    "require-dev": {
+        "phpunit/phpunit": "^8.0"
+    },
+    "provide": {
+        "ext-mecab": "^0.6"
+    },
+    "require": {
+        "ext-mbstring": "*",
+        "vlucas/phpdotenv": "^5.0",
+        "monolog/monolog": "^2.0",
+        "php-di/php-di": "^6.0"
+    },
+    "config": {
+        "autoloader-suffix": "keso01",
+        "platform": {
+            "php": "7.4.0"
+        }
+    },
+    "autoload": {
+        "psr-4": {
+            "Keso01\\": "src/Keso01/",
+            "Keso01\\Test\\": "tests/unit/lib/Test/"
+        }
     }
-  }
 }

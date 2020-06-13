@@ -1,6 +1,6 @@
 #!/usr/bin/php
 <?php declare(strict_types=1);
-require_once __DIR__ . '/../bootstrap/bootstrap.php';
+require_once __DIR__ . '/../bootstrap/cli.php';
 /**
  * 少し前処理をしたもの
  */

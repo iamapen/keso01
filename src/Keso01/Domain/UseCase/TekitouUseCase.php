@@ -20,9 +20,10 @@ class TekitouUseCase
 
         // 形態素解析
         $mecabOpt = [
-            '-u', realpath(__DIR__ . '/../../../../storage/dic/user.dic'),
+            '-u', getenv('MECAB_USER_DIC'),
         ];
-        $words = (new \Keso01\Adapter\Mecab\Analyser\Popen())->morphologicalAnalyse($input, $mecabOpt);
+        $words = (new \Keso01\Adapter\Mecab\Analyser\Popen(getenv('MECAB_BIN')))
+            ->morphologicalAnalyse($input, $mecabOpt);
 
         // フィルタ
         $blackWordFilter = new BlackWordFilter();

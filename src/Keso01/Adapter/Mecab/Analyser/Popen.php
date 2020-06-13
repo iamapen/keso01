@@ -8,6 +8,15 @@ namespace Keso01\Adapter\Mecab\Analyser;
  */
 class Popen implements IAnalyzer
 {
+    private $mecabBin = '/usr/bin/mecab';
+
+    public function __construct(?string $mecabBin = null)
+    {
+        if (strval($mecabBin) !== '') {
+            $this->mecabBin = $mecabBin;
+        }
+    }
+
     public function morphologicalAnalyse(string $input, array $mecabOpt = []): array
     {
         $descriptorspec = [
@@ -17,7 +26,7 @@ class Popen implements IAnalyzer
         ];
         $stdout = null;
         $stderr = null;
-        $cmd = '/usr/bin/mecab ' . implode(' ', $mecabOpt);
+        $cmd = sprintf('%s %s', $this->mecabBin, implode(' ', $mecabOpt));
         $ph = proc_open($cmd, $descriptorspec, $pipes);
         if (!is_resource($ph)) {
             throw new \RuntimeException('proc_open() failed');
