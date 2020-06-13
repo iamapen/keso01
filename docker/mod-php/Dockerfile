@@ -38,7 +38,8 @@ RUN set -x \
   && make \
   && make install
 
-COPY php.d/*.ini /etc/php.d/
+COPY httpd/etc/conf /etc/httpd/conf
+COPY php/etc/php.d /etc/php.d/
 
 EXPOSE 80
 EXPOSE 443

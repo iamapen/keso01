@@ -1,6 +1,6 @@
 <?php
 
-namespace Keso01\Normalizer;
+namespace Keso01\Domain\Normalizer;
 
 class BasicNormalizer
 {
