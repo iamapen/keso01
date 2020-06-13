@@ -19,17 +19,11 @@ $input = $normalizer->normalize($input);
 
 // 形態素解析
 $mecabOpt = [
-    '-O', 'wakati',
     '-u', realpath(__DIR__ . '/../storage/dic/user.dic'),
 ];
-//$mecabOpt = [];
-
-$words = explode(' ', doMorphologicalAnalysis($input, $mecabOpt));
+$words = doMorphologicalAnalysis($input, $mecabOpt);
 
 // フィルタ
-$words = array_unique($words);
-$words = array_combine($words, $words);
-
 $blackWords = [
     "\n",
     '!', '"', '#', '$', '%', '&', "'", '(', ')', '*', '+', ',', '~', '.', '/',
@@ -44,15 +38,22 @@ foreach ($blackWords as $blackWord) {
     unset($words[$blackWord]);
 }
 
-var_dump(array_values($words));
+// 名詞に限定
+foreach ($words as $word => $info) {
+    if ($info['hinshi1'] !== '名詞') {
+        unset($words[$word]);
+    }
+}
+
+var_dump(array_keys($words));
 
 /**
  * 形態素解析を実行して返す
  * @param string $input
  * @param string[] $mecabOpt
- * @return string
+ * @return array
  */
-function doMorphologicalAnalysis(string $input, array $mecabOpt = []): string
+function doMorphologicalAnalysis(string $input, array $mecabOpt = []): array
 {
     $descriptorspec = [
         ['pipe', 'r'],
@@ -81,5 +82,18 @@ function doMorphologicalAnalysis(string $input, array $mecabOpt = []): string
         throw new \RuntimeException(sprintf('proc_open() exit status "%s"', $exitCode));
     }
 
-    return $stdout;
+    $result = [];
+    foreach (explode("\n", $stdout) as $strRow) {
+        if ($strRow === '' || $strRow === 'EOS') {
+            continue;
+        }
+        list($word, $strParts) = explode("\t", $strRow);
+        $parts = explode(',', $strParts);
+        $result[$word] = [
+            'word' => $word,
+            'hinshi1' => $parts[0],
+        ];
+    }
+
+    return $result;
 }
