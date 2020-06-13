@@ -2,6 +2,10 @@
 BASE_DIR=$(cd $(dirname $0);pwd)
 cd $BASE_DIR
 
+###
+# mecab辞書更新スクリプト
+###
+
 ROOT_DIR=$(cd ../;pwd)
 STORAGE_DIR="${ROOT_DIR}/storage"
 DIC_DIR="${STORAGE_DIR}/dic"

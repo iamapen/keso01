@@ -1,3 +1,4 @@
+#!/usr/bin/php
 <?php declare(strict_types=1);
 /**
  * php-mecabを使わず、proc_open() でmecabを実行するもの
