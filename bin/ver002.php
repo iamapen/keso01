@@ -1,7 +1,6 @@
 <?php declare(strict_types=1);
 /**
- * ひとまずphp-mecabが動作する状態にしたもの
- * @uses php-mecab 0.6.0
+ * php-mecabを使わず、proc_open() でmecabを実行するもの
  */
 
 $inputFile = $argv[1] ?? null;
@@ -58,6 +57,32 @@ var_dump(array_values($words));
  */
 function doMorphologicalAnalysis(string $input, array $mecabOpt = []): string
 {
-    $tagger = new \Mecab\Tagger($mecabOpt);
-    return $tagger->parse($input);
+    $descriptorspec = [
+        ['pipe', 'r'],
+        ['pipe', 'w'],
+        ['pipe', 'w'],
+    ];
+    $stdout = null;
+    $stderr = null;
+    $cmd = '/usr/bin/mecab ' . implode(' ', $mecabOpt);
+    $ph = proc_open($cmd, $descriptorspec, $pipes);
+    if (!is_resource($ph)) {
+        throw new \RuntimeException('proc_open() failed');
+    }
+
+    fwrite($pipes[0], $input . "\n");
+    fclose($pipes[0]);
+
+    $stdout = stream_get_contents($pipes[1]);
+    fclose($pipes[1]);
+
+    $stderr = stream_get_contents($pipes[2]);
+    fclose($pipes[2]);
+    $exitCode = proc_close($ph);
+
+    if ($exitCode !== 0) {
+        throw new \RuntimeException(sprintf('proc_open() exit status "%s"', $exitCode));
+    }
+
+    return $stdout;
 }

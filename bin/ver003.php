@@ -1,7 +1,7 @@
 <?php declare(strict_types=1);
+require_once __DIR__ . '/../bootstrap/bootstrap.php';
 /**
- * ひとまずphp-mecabが動作する状態にしたもの
- * @uses php-mecab 0.6.0
+ * 少し前処理をしたもの
  */
 
 $inputFile = $argv[1] ?? null;
@@ -13,13 +13,8 @@ if ($inputFile === null) {
 $input = file_get_contents($inputFile);
 
 // 前処理
-$input = trim($input);
-//$input = mb_convert_kana($input, 'ascKV', 'UTF-8');
-$input = mb_convert_kana($input, 'asKV', 'UTF-8');
-//$input = strtr($input, '"', '');
-//$input = str_replace("\n", '', $input);
-//$input = preg_replace("/[[\]【】\/\n★!?:;@`{}♪・※◎()、。「」~\\\\|]/u", '', $input);
-$input = preg_replace("/[[\]【】\t\r\n★!?;@`{}♪・※◎()、。「」~\\\\|\/,.]/u", ' ', $input);
+$normalizer = new \Keso01\Normalizer\BasicNormalizer();
+$input = $normalizer->normalize($input);
 
 // 形態素解析
 $mecabOpt = [
@@ -58,6 +53,32 @@ var_dump(array_values($words));
  */
 function doMorphologicalAnalysis(string $input, array $mecabOpt = []): string
 {
-    $tagger = new \Mecab\Tagger($mecabOpt);
-    return $tagger->parse($input);
+    $descriptorspec = [
+        ['pipe', 'r'],
+        ['pipe', 'w'],
+        ['pipe', 'w'],
+    ];
+    $stdout = null;
+    $stderr = null;
+    $cmd = '/usr/bin/mecab ' . implode(' ', $mecabOpt);
+    $ph = proc_open($cmd, $descriptorspec, $pipes);
+    if (!is_resource($ph)) {
+        throw new \RuntimeException('proc_open() failed');
+    }
+
+    fwrite($pipes[0], $input . "\n");
+    fclose($pipes[0]);
+
+    $stdout = stream_get_contents($pipes[1]);
+    fclose($pipes[1]);
+
+    $stderr = stream_get_contents($pipes[2]);
+    fclose($pipes[2]);
+    $exitCode = proc_close($ph);
+
+    if ($exitCode !== 0) {
+        throw new \RuntimeException(sprintf('proc_open() exit status "%s"', $exitCode));
+    }
+
+    return $stdout;
 }
